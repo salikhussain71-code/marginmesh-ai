@@ -1,0 +1,40 @@
+{
+  "seed": 42,
+  "reconciliation": [
+    {
+      "sku": "FAB-FLC-280",
+      "kind": "QUANTITY_VARIANCE"
+    },
+    {
+      "sku": "FAB-JER-180",
+      "kind": "PRICE_VARIANCE"
+    },
+    {
+      "sku": "PKG-CTN-5P",
+      "kind": "PRICE_VARIANCE"
+    },
+    {
+      "sku": "PKG-POL-01",
+      "kind": "DUPLICATE_SKU_LINES"
+    },
+    {
+      "sku": "TRM-BTN-18",
+      "kind": "MISSING_ON_INVOICE"
+    },
+    {
+      "sku": "TRM-DRW-CORD",
+      "kind": "UNORDERED_ON_INVOICE"
+    },
+    {
+      "sku": "YRN-DYE-30S",
+      "kind": "QUANTITY_VARIANCE"
+    }
+  ],
+  "cost_overruns": [
+    "cutting_stitching",
+    "freight",
+    "washing_finishing"
+  ],
+  "short_payment": true,
+  "note": "Synthetic, fictional data. The 'materials' overrun depends on the injected rows."
+}

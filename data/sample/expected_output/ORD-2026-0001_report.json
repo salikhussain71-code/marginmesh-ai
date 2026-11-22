@@ -1,0 +1,292 @@
+{
+  "meta": {
+    "tool": "marginmesh-ai",
+    "version": "0.1.0",
+    "generated_at": "2026-11-22T09:16:45+00:00",
+    "disclaimer": "Findings are potential discrepancies that require human review. They are not confirmed financial losses and are not accounting, tax or legal advice."
+  },
+  "order": {
+    "order_id": "ORD-2026-0001",
+    "buyer": "Synthetic Buyer Ltd (fictional)",
+    "currency": "USD",
+    "revenue": "108006.87",
+    "received": "106386.77"
+  },
+  "reconciliation": {
+    "currency": "USD",
+    "purchase_order_total": "60661.39",
+    "invoice_total": "60895.80",
+    "net_difference": "234.41",
+    "flagged_invoice_above_po": "2393.35",
+    "flagged_invoice_below_po": "2158.94"
+  },
+  "margin": {
+    "currency": "USD",
+    "revenue": "108006.87",
+    "planned_cost": "88565.63",
+    "actual_cost": "90553.15",
+    "planned_margin": "19441.24",
+    "actual_margin": "17453.72",
+    "planned_margin_pct": "18.00",
+    "actual_margin_pct": "16.16",
+    "margin_erosion": "1987.52",
+    "received": "106386.77",
+    "short_payment": "1620.10",
+    "realised_margin": "15833.62",
+    "categories": [
+      {
+        "category": "materials",
+        "planned": "60661.39",
+        "actual": "60895.80",
+        "variance": "234.41",
+        "variance_pct": "0.39"
+      },
+      {
+        "category": "cutting_stitching",
+        "planned": "18198.42",
+        "actual": "18926.36",
+        "variance": "727.94",
+        "variance_pct": "4.00"
+      },
+      {
+        "category": "washing_finishing",
+        "planned": "3639.68",
+        "actual": "4076.44",
+        "variance": "436.76",
+        "variance_pct": "12.00"
+      },
+      {
+        "category": "packaging",
+        "planned": "2426.46",
+        "actual": "2377.93",
+        "variance": "-48.53",
+        "variance_pct": "-2.00"
+      },
+      {
+        "category": "freight",
+        "planned": "3033.07",
+        "actual": "3670.01",
+        "variance": "636.94",
+        "variance_pct": "21.00"
+      },
+      {
+        "category": "testing_compliance",
+        "planned": "606.61",
+        "actual": "606.61",
+        "variance": "0.00",
+        "variance_pct": "0.00"
+      }
+    ]
+  },
+  "summary": {
+    "total_findings": 11,
+    "by_severity": {
+      "HIGH": 6,
+      "MEDIUM": 4,
+      "INFO": 1
+    },
+    "by_kind": {
+      "PRICE_VARIANCE": 2,
+      "QUANTITY_VARIANCE": 2,
+      "COST_OVERRUN": 3,
+      "UNORDERED_ON_INVOICE": 1,
+      "SHORT_PAYMENT": 1,
+      "MISSING_ON_INVOICE": 1,
+      "DUPLICATE_SKU_LINES": 1
+    }
+  },
+  "findings": [
+    {
+      "id": "ORD-2026-0001-F001",
+      "order_id": "ORD-2026-0001",
+      "kind": "PRICE_VARIANCE",
+      "severity": "HIGH",
+      "sku": "FAB-JER-180",
+      "currency": "USD",
+      "expected": "21800.85",
+      "actual": "23095.95",
+      "difference": "1295.10",
+      "difference_pct": "5.94",
+      "evidence": [
+        "purchase_order.csv:row 2",
+        "supplier_invoice.csv:row 2"
+      ],
+      "explanation": "Invoice unit price 5.35 is above the purchase order price 5.05. Effect: (5.35 - 5.05) x 4317 = 1,295.10 USD.",
+      "status": "needs_review"
+    },
+    {
+      "id": "ORD-2026-0001-F002",
+      "order_id": "ORD-2026-0001",
+      "kind": "QUANTITY_VARIANCE",
+      "severity": "HIGH",
+      "sku": "FAB-FLC-280",
+      "currency": "USD",
+      "expected": "18970.04",
+      "actual": "19940.54",
+      "difference": "970.50",
+      "difference_pct": "5.12",
+      "evidence": [
+        "purchase_order.csv:row 4",
+        "supplier_invoice.csv:row 4"
+      ],
+      "explanation": "Invoice quantity 3082 vs ordered 2932 (more than ordered - check for over-shipment or over-billing). Effect at purchase-order price: (3082 - 2932) x 6.47 = 970.50 USD.",
+      "status": "needs_review"
+    },
+    {
+      "id": "ORD-2026-0001-F003",
+      "order_id": "ORD-2026-0001",
+      "kind": "QUANTITY_VARIANCE",
+      "severity": "HIGH",
+      "sku": "YRN-DYE-30S",
+      "currency": "USD",
+      "expected": "6472.00",
+      "actual": "5672.00",
+      "difference": "-800.00",
+      "difference_pct": "-12.36",
+      "evidence": [
+        "purchase_order.csv:row 5",
+        "supplier_invoice.csv:row 5"
+      ],
+      "explanation": "Invoice quantity 1418 vs ordered 1618 (fewer than ordered - check for short shipment). Effect at purchase-order price: (1418 - 1618) x 4.00 = -800.00 USD.",
+      "status": "needs_review"
+    },
+    {
+      "id": "ORD-2026-0001-F004",
+      "order_id": "ORD-2026-0001",
+      "kind": "COST_OVERRUN",
+      "severity": "HIGH",
+      "sku": null,
+      "currency": "USD",
+      "expected": "3033.07",
+      "actual": "3670.01",
+      "difference": "636.94",
+      "difference_pct": "21.00",
+      "evidence": [
+        "costing_sheet.csv:row 6"
+      ],
+      "explanation": "'freight' actual cost 3,670.01 exceeds planned 3,033.07 by 636.94 (21.00%).",
+      "status": "needs_review"
+    },
+    {
+      "id": "ORD-2026-0001-F005",
+      "order_id": "ORD-2026-0001",
+      "kind": "COST_OVERRUN",
+      "severity": "HIGH",
+      "sku": null,
+      "currency": "USD",
+      "expected": "3639.68",
+      "actual": "4076.44",
+      "difference": "436.76",
+      "difference_pct": "12.00",
+      "evidence": [
+        "costing_sheet.csv:row 4"
+      ],
+      "explanation": "'washing_finishing' actual cost 4,076.44 exceeds planned 3,639.68 by 436.76 (12.00%).",
+      "status": "needs_review"
+    },
+    {
+      "id": "ORD-2026-0001-F006",
+      "order_id": "ORD-2026-0001",
+      "kind": "UNORDERED_ON_INVOICE",
+      "severity": "HIGH",
+      "sku": "TRM-DRW-CORD",
+      "currency": "USD",
+      "expected": "0.00",
+      "actual": "90.00",
+      "difference": "90.00",
+      "difference_pct": null,
+      "evidence": [
+        "supplier_invoice.csv:row 12"
+      ],
+      "explanation": "SKU TRM-DRW-CORD is billed (500 x 0.18 = 90.00) but is not on the purchase order.",
+      "status": "needs_review"
+    },
+    {
+      "id": "ORD-2026-0001-F007",
+      "order_id": "ORD-2026-0001",
+      "kind": "SHORT_PAYMENT",
+      "severity": "MEDIUM",
+      "sku": null,
+      "currency": "USD",
+      "expected": "108006.87",
+      "actual": "106386.77",
+      "difference": "-1620.10",
+      "difference_pct": "-1.50",
+      "evidence": [
+        "order file: revenue / received"
+      ],
+      "explanation": "Received 106,386.77 against order revenue 108,006.87: shortfall 1,620.10. Check buyer deductions, bank charges and agreed claims.",
+      "status": "needs_review"
+    },
+    {
+      "id": "ORD-2026-0001-F008",
+      "order_id": "ORD-2026-0001",
+      "kind": "MISSING_ON_INVOICE",
+      "severity": "MEDIUM",
+      "sku": "TRM-BTN-18",
+      "currency": "USD",
+      "expected": "1358.94",
+      "actual": "0.00",
+      "difference": "-1358.94",
+      "difference_pct": "-100.00",
+      "evidence": [
+        "purchase_order.csv:row 7"
+      ],
+      "explanation": "SKU TRM-BTN-18 is on the purchase order (1,358.94) but not on the invoice. This may be a partial shipment or a later invoice.",
+      "status": "needs_review"
+    },
+    {
+      "id": "ORD-2026-0001-F009",
+      "order_id": "ORD-2026-0001",
+      "kind": "COST_OVERRUN",
+      "severity": "MEDIUM",
+      "sku": null,
+      "currency": "USD",
+      "expected": "18198.42",
+      "actual": "18926.36",
+      "difference": "727.94",
+      "difference_pct": "4.00",
+      "evidence": [
+        "costing_sheet.csv:row 3"
+      ],
+      "explanation": "'cutting_stitching' actual cost 18,926.36 exceeds planned 18,198.42 by 727.94 (4.00%).",
+      "status": "needs_review"
+    },
+    {
+      "id": "ORD-2026-0001-F010",
+      "order_id": "ORD-2026-0001",
+      "kind": "PRICE_VARIANCE",
+      "severity": "MEDIUM",
+      "sku": "PKG-CTN-5P",
+      "currency": "USD",
+      "expected": "1026.80",
+      "actual": "1064.55",
+      "difference": "37.75",
+      "difference_pct": "3.68",
+      "evidence": [
+        "purchase_order.csv:row 10",
+        "supplier_invoice.csv:row 10"
+      ],
+      "explanation": "Invoice unit price 1.41 is above the purchase order price 1.36. Effect: (1.41 - 1.36) x 755 = 37.75 USD.",
+      "status": "needs_review"
+    },
+    {
+      "id": "ORD-2026-0001-F011",
+      "order_id": "ORD-2026-0001",
+      "kind": "DUPLICATE_SKU_LINES",
+      "severity": "INFO",
+      "sku": "PKG-POL-01",
+      "currency": "USD",
+      "expected": "618.00",
+      "actual": "618.00",
+      "difference": "0.00",
+      "difference_pct": "0.00",
+      "evidence": [
+        "supplier_invoice.csv:row 8",
+        "supplier_invoice.csv:row 9"
+      ],
+      "explanation": "SKU PKG-POL-01 appears on 2 invoice lines; they were combined (quantities summed, prices averaged by quantity). Check this is not a double-billing.",
+      "status": "needs_review"
+    }
+  ]
+}
