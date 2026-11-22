@@ -1,61 +1,136 @@
 # MarginMesh AI: Order Recovery Engine
 
-[![CI](https://github.com/salikhussain71-code/marginmesh-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/salikhussain71-code/marginmesh-ai/actions/workflows/ci.yml)
-![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
+CI · Python · MIT License
 
-Evidence-linked reconciliation and margin analysis for export orders. Give it a purchase order, a
-supplier invoice and a costing sheet; it shows **where an order's expected profit differs from the
-actual outcome**, with the formula and the source row behind every number.
+Evidence-linked reconciliation and margin analysis for export orders. Give it a purchase order, a supplier invoice, and a costing sheet; it shows where an order's expected profit differs from the actual outcome, with the formula and the source row behind every number.
 
-Built for the textile and apparel export workflow. Early prototype (v0.1) that runs on
-synthetic data only.
+Built for the textile and apparel export workflow. MarginMesh AI is an early prototype (v0.1.0) that runs on synthetic data only.
 
-## Why this exists
+## Why This Exists
 
-Export manufacturers lose margin quietly: invoice prices drift from the PO, quantities differ,
-unordered items appear, freight and finishing overrun, and buyers short-pay. Checking this by hand
-across many orders is slow. MarginMesh automates the arithmetic and leaves the judgement to people.
+Export manufacturers can lose margin through invoice price changes, quantity discrepancies, unexpected items, freight and finishing overruns, and payment shortfalls.
 
-## What it does
+Checking these issues manually across multiple purchase orders, invoices, and costing sheets is time-consuming and error-prone.
 
-- Matches PO and invoice lines by SKU and splits every difference **exactly** into a price effect
-  and a quantity effect (the two always sum to the invoice-minus-PO total).
-- Flags unordered items, missing items, currency mismatches and duplicate invoice lines.
-- Computes planned vs actual margin, margin erosion, cost overruns by category and payment shortfall.
-- Writes JSON, Markdown, CSV and Excel reports; every finding cites `file:row`.
+MarginMesh AI automates reconciliation and financial calculations while keeping the evidence visible, so people can review discrepancies rather than blindly trust a number.
 
-## What it deliberately does not do
+## What It Does
 
-- It does not call anything a "loss". Every finding is a *potential discrepancy* with status
-  `needs_review`.
-- No language model calculates any amount; all numbers come from tested `Decimal` arithmetic.
-- No OCR / PDF reading, tax logic, amendments, credit notes or currency conversion yet (see roadmap).
-- No real customer data is included or required.
+- Matches purchase order and invoice lines by SKU.
+- Separates invoice differences into price effects and quantity effects.
+- Ensures price effect + quantity effect equals the invoice-minus-PO difference.
+- Flags unordered items, missing items, currency mismatches, and duplicate invoice lines.
+- Calculates planned and actual margin.
+- Identifies margin erosion, cost overruns by category, and payment shortfalls.
+- Produces JSON, Markdown, CSV, and Excel reports.
+- Links findings to their source file and row.
+- Uses deterministic calculations instead of AI-generated financial amounts.
 
-## Quick start
+## What It Deliberately Does Not Do
+
+- It does not automatically classify a discrepancy as a confirmed loss.
+- Every finding is marked for review.
+- No language model calculates financial amounts.
+- No OCR or PDF extraction.
+- No tax calculations.
+- No purchase order amendments or credit note processing.
+- No currency conversion.
+- No real customer or company financial data is included.
+
+## Key Design Principles
+
+### Financial Precision
+
+All monetary calculations use Python `Decimal` rather than binary floating-point arithmetic.
+
+### Evidence-Linked Findings
+
+Reconciliation findings retain references to the original file and row, making it possible to trace results back to their source.
+
+### Transparent Calculations
+
+Financial differences are broken down into explicit price and quantity effects rather than hidden behind a single unexplained number.
+
+### Human Review
+
+The tool identifies potential discrepancies. It does not make final accounting decisions or automatically declare financial losses.
+
+### Deterministic Results
+
+The same input records produce reproducible calculations and findings.
+
+---
+
+## Quick Start
+
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/salikhussain71-code/marginmesh-ai.git
 cd marginmesh-ai
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-pip install -e ".[dev]"
+```
 
+### 2. Create a Virtual Environment
+
+**Windows:**
+
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+**Linux / macOS:**
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Install Dependencies
+
+```bash
+pip install -e ".[dev]"
+```
+
+### 4. Run the Demo
+
+```bash
 marginmesh demo --out marginmesh-demo
 ```
 
-Open `marginmesh-demo/reports/ORD-2026-0001_report.md` (or the `.xlsx`).
+Generated reports will be available in:
 
-## Example output (synthetic order, seed 42)
-
+```text
+marginmesh-demo/
+└── reports/
 ```
+
+Open the generated Markdown report or Excel workbook to review the findings.
+
+---
+
+## Example Output
+
+Synthetic order:
+
+`ORD-2026-0001`
+
+```text
 Order ORD-2026-0001: 11 finding(s) need review
-  PO total 60,661.39 | invoice total 60,895.80 | net 234.41 USD
-  Margin: planned 18.00% -> actual 16.16% (erosion 1,987.52 USD)
+
+PO total       60,661.39
+Invoice total  60,895.80
+Net difference    234.41 USD
+
+Margin:
+Planned: 18.00%
+Actual:  16.16%
+Erosion:  1,987.52 USD
 ```
 
-| Severity | Kind | SKU | Expected | Actual | Difference |
+### Sample Findings
+
+| Severity | Finding | SKU | Expected | Actual | Difference |
 |---|---|---|---:|---:|---:|
 | HIGH | PRICE_VARIANCE | FAB-JER-180 | 21,800.85 | 23,095.95 | 1,295.10 |
 | HIGH | QUANTITY_VARIANCE | FAB-FLC-280 | 18,970.04 | 19,940.54 | 970.50 |
@@ -63,77 +138,313 @@ Order ORD-2026-0001: 11 finding(s) need review
 | MEDIUM | MISSING_ON_INVOICE | TRM-BTN-18 | 1,358.94 | 0.00 | -1,358.94 |
 | HIGH | UNORDERED_ON_INVOICE | TRM-DRW-CORD | 0.00 | 90.00 | 90.00 |
 
-Example explanation: *Invoice unit price 5.35 is above the purchase order price 5.05.
-Effect: (5.35 - 5.05) x 4317 = 1,295.10 USD.* Full output: `data/sample/expected_output/`.
+All values above are from fictional sample records.
 
-## Using your own files
+### Example Price Effect
+
+If the invoice unit price is 5.35 while the purchase order unit price is 5.05, for a quantity of 4,317:
+
+```text
+(5.35 - 5.05) × 4,317 = 1,295.10 USD
+```
+
+The report provides the calculation and supporting evidence.
+
+Full generated output:
+
+```text
+data/sample/expected_output/
+```
+
+---
+
+## Verification and Testing
+
+MarginMesh AI has been tested through automated tests, CI, and manual execution on a local Windows environment.
+
+### Automated Tests
+
+```bash
+pytest
+```
+
+Observed result:
+
+```text
+86 passed
+```
+
+### Continuous Integration
+
+The GitHub Actions CI workflow completed successfully.
+
+CI checks include automated testing and linting across its configured Python versions.
+
+### Local Environment Verification
+
+| Environment | Result |
+|---|---|
+| Operating System | Windows 10 |
+| Python | 3.14.3 |
+| Installation | Successful |
+| CLI demo | Successful |
+| Automated tests | 86 passed |
+| JSON report generation | Successful |
+| Markdown report generation | Successful |
+| CSV report generation | Successful |
+| Excel report generation | Successful |
+
+### Manual Input-Change Verification
+
+A sample supplier invoice price was deliberately changed from `5.35` to `6.00` to verify that the application recalculates results from updated input data.
+
+| Metric | Original | Modified |
+|---|---:|---:|
+| Invoice unit price | 5.35 | 6.00 |
+| Invoice total | 60,895.80 | 63,701.85 |
+| Net difference | 234.41 | 3,040.46 |
+
+The application reflected the modified invoice price in the generated reconciliation report.
+
+The sample file was subsequently restored to its original value of `5.35`.
+
+This verification demonstrates that the application responds to the modified synthetic input. It does not establish accuracy on real-world exporter records.
+
+### Reproducibility
+
+A randomized test suite verifies that price effect and quantity effect sum to the total invoice-versus-purchase-order difference across randomized cases.
+
+The project also includes synthetic ground-truth tests designed to verify discrepancy detection against deliberately injected discrepancies.
+
+These results are limited to the generated test data and defined test conditions.
+
+---
+
+## Using Your Own Files
+
+Example:
 
 ```bash
 marginmesh analyze \
-  --po purchase_order.xlsx --invoice supplier_invoice.csv --costing costing_sheet.csv \
-  --order-id ORD-1001 --currency USD --revenue 108000 --received 106400 \
-  --out reports --formats json,md,csv,xlsx
+  --po purchase_order.xlsx \
+  --invoice supplier_invoice.csv \
+  --costing costing_sheet.csv \
+  --order-id ORD-1001 \
+  --currency USD \
+  --revenue 108000 \
+  --received 106400 \
+  --out reports \
+  --formats json,md,csv,xlsx
 ```
 
-Input columns (case-insensitive, common aliases accepted):
+### Supported Input Files
 
-| File | Required columns |
-|---|---|
-| Purchase order / invoice | `sku`, `quantity`, `unit_price` (optional: `description`, `currency`) |
-| Costing sheet | `category`, `planned_cost`, `actual_cost` |
+| File | Required columns | Optional columns |
+|---|---|---|
+| Purchase order | `sku`, `quantity`, `unit_price` | `description`, `currency` |
+| Supplier invoice | `sku`, `quantity`, `unit_price` | `description`, `currency` |
+| Costing sheet | `category`, `planned_cost`, `actual_cost` | Depends on supported schema |
 
-`--costing` needs `--revenue` (or an `--order-file` JSON). Exit code `2` means invalid input; the
-message names the file and row.
+Column aliases are supported and matching is case-insensitive.
 
-## Optional local API
+The `--costing` option requires `--revenue` or a supported order JSON file.
+
+Invalid inputs return exit code `2`, with an error identifying the relevant file and row where available.
+
+---
+
+## Financial Calculations
+
+### Gross Profit
+
+```text
+Gross Profit = Revenue - Total Costs
+```
+
+### Gross Margin
+
+```text
+Gross Margin (%) = (Gross Profit / Revenue) × 100
+```
+
+Zero revenue is handled safely.
+
+### Price Effect
+
+The price effect isolates the financial difference caused by a change in unit price.
+
+### Quantity Effect
+
+The quantity effect isolates the financial difference caused by a change in ordered and invoiced quantities.
+
+Price and quantity effects are designed to reconcile to the total invoice-minus-purchase-order difference.
+
+All financial arithmetic uses `Decimal`.
+
+---
+
+## Optional Local API
+
+Install the API dependencies:
 
 ```bash
 pip install -e ".[api]"
-uvicorn marginmesh.api:app --host 127.0.0.1 --port 8000   # docs at /docs
 ```
 
-`POST /v1/analyze` accepts multipart files. **No authentication: local use only.**
-
-## Verification
+Run the local API:
 
 ```bash
-pytest --cov=marginmesh
+uvicorn marginmesh.api:app --host 127.0.0.1 --port 8000
 ```
 
-- 86 tests pass; 98% line coverage.
-- Ground-truth test: for 25 CSV seeds and 5 XLSX seeds, the generator injects known
-  discrepancies and the engine must find all of them with no extra reconciliation findings.
-  This measures correctness on *synthetic* data only. It is not a claim about real-world accuracy.
-- A 500-case randomised test proves `price effect + quantity effect = invoice total - PO total`.
+API documentation:
 
-## Project structure
-
-```
-src/marginmesh/   models, ingest, reconcile, margin, analysis, report, synthetic, cli, api
-tests/            unit, property, end-to-end and API tests
-data/sample/      synthetic order and expected output
-docs/             methodology, architecture, roadmap, data policy, customer discovery guide
-.github/          CI (Python 3.10-3.12, lint + tests)
+```text
+http://127.0.0.1:8000/docs
 ```
 
-## Documentation
+The API exposes:
 
-[Methodology](docs/METHODOLOGY.md) | [Architecture](docs/ARCHITECTURE.md) |
-[Roadmap](docs/ROADMAP.md) | [Data policy](docs/DATA_POLICY.md) |
-[Customer discovery](docs/CUSTOMER_DISCOVERY.md) | [Security](SECURITY.md)
+```text
+POST /v1/analyze
+```
+
+It accepts multipart file uploads for local analysis.
+
+**Security note:** The prototype API has no authentication. It is intended for local use only and should not be exposed publicly.
+
+---
+
+## Project Structure
+
+```text
+marginmesh-ai/
+│
+├── .github/
+│   └── workflows/
+│       └── CI
+│
+├── data/
+│   └── sample/
+│
+├── docs/
+│
+├── src/
+│   └── marginmesh/
+│
+├── tests/
+│
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── Dockerfile
+├── LICENSE
+├── Makefile
+├── README.md
+├── SECURITY.md
+├── pyproject.toml
+├── requirements.txt
+└── requirements-dev.txt
+```
+
+The source package separates models, ingestion, validation, reconciliation, calculations, reporting, synthetic data generation, CLI functionality, and API functionality.
+
+---
 
 ## Limitations
 
-Single currency per comparison, SKU-level matching only, spreadsheet input only, no persistence,
-no user accounts. Existing ERP and costing products already cover parts of this space; this
-project explores a lightweight, spreadsheet-first, evidence-linked workflow and has not been
-validated with real exporters.
+MarginMesh AI is an early-stage prototype.
+
+Current limitations include:
+
+- Single-currency comparisons.
+- SKU-level matching.
+- Spreadsheet-based input.
+- No database persistence.
+- No user accounts or access management.
+- No OCR or PDF extraction.
+- No real-world exporter validation.
+- No automated accounting or ERP integration.
+
+Existing ERP, accounting, and costing systems already provide many related features.
+
+MarginMesh explores a lightweight, spreadsheet-first reconciliation workflow with evidence-linked findings. Its effectiveness and usefulness have not yet been validated with real textile exporters.
+
+---
+
+## Roadmap
+
+Potential future directions:
+
+- Real-world workflow validation with textile exporters.
+- More flexible SKU and line-item matching.
+- Purchase order amendments and credit notes.
+- Additional discrepancy rules.
+- Improved evidence and audit trails.
+- Document extraction from PDFs.
+- Multi-currency support with explicit exchange-rate evidence.
+- Optional integrations with existing ERP and accounting workflows.
+- More comprehensive test cases using anonymized, permission-based records.
+
+Future features will be prioritized based on workflow feedback rather than assumptions.
+
+---
+
+## Documentation
+
+Additional project documentation is available in `docs/`:
+
+- Methodology
+- Architecture
+- Roadmap
+- Data policy
+- Customer discovery
+- Security
+
+---
+
+## Data Policy
+
+The repository uses synthetic sample data.
+
+Do not upload confidential invoices, supplier information, bank details, customer identities, or commercially sensitive financial information.
+
+Any real-world testing should use properly authorized and anonymized records.
+
+---
 
 ## Author
 
-Salik Hussain, BS Computer Science, Iqra University, Islamabad.
-GitHub: [@salikhussain71-code](https://github.com/salikhussain71-code)
+**Salik Hussain**
+
+BS Computer Science student at Iqra University, Islamabad, Pakistan.
+
+Areas of technical interest:
+
+- Python Software Development
+- Artificial Intelligence
+- Machine Learning
+- Natural Language Processing
+- Data Engineering
+- Research-oriented software development
+
+GitHub:
+
+https://github.com/salikhussain71-code
+
+Project:
+
+https://github.com/salikhussain71-code/marginmesh-ai
+
+---
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+This project is licensed under the MIT License.
+
+See [LICENSE](LICENSE) for details.
+
+---
+
+**MarginMesh AI v0.1.0**
+
+An experimental, evidence-linked reconciliation engine focused on transparent calculations, reproducibility, and human-reviewed financial findings.
